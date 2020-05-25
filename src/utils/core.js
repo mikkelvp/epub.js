@@ -487,6 +487,12 @@ export function parse(markup, mime, forceXMLDom) {
 	if(markup.charCodeAt(0) === 0xFEFF) {
 		markup = markup.slice(1);
 	}
+	if (mime === "text/html") {
+		const invalidHtmlTags = [`<title />`, `<title/>`];
+		invalidHtmlTags.forEach(tag => {
+			markup = markup.replace(tag, '');
+		})
+	}
 
 	doc = new Parser().parseFromString(markup, mime);
 
