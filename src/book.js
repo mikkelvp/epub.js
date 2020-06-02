@@ -15,9 +15,11 @@ import request from "./utils/request";
 import EpubCFI from "./epubcfi";
 import Store from "./store";
 import DisplayOptions from "./displayoptions";
+import Encryption from "./encryption";
 import { EPUBJS_VERSION, EVENTS } from "./utils/constants";
 
 const CONTAINER_PATH = "META-INF/container.xml";
+const ENCRYPTION_PATH = "META-INF/encryption.xml";
 const IBOOKS_DISPLAY_OPTIONS_PATH = "META-INF/com.apple.ibooks.display-options.xml";
 
 const INPUT_TYPE = {
@@ -89,7 +91,8 @@ class Book {
 			navigation: new defer(),
 			pageList: new defer(),
 			resources: new defer(),
-			displayOptions: new defer()
+			displayOptions: new defer(),
+			encryption: new defer()
 		};
 
 		this.loaded = {
@@ -315,11 +318,26 @@ class Book {
 	 */
 	openPackaging(url) {
 		this.path = new Path(url);
-		return this.load(url)
+
+		this.load(this.url.resolve(ENCRYPTION_PATH)).then((xml) => {
+			this.encryption = new Encryption(xml);
+			if (this.encryption.items.length > 0) {
+				console.log('epub contains encrypted assets - force blobUrl replacements');
+				this.settings.replacements = "blobUrl";
+			}
+			this.loading.encryption.resolve(this.encryption);
+		}).catch((err) => {
+			this.encryption = new Encryption();
+			this.loading.encryption.resolve(this.encryption);
+		});
+
+		const packagingPromise = this.load(url)
 			.then((xml) => {
 				this.packaging = new Packaging(xml);
 				return this.unpack(this.packaging);
 			});
+
+		return Promise.all([packagingPromise, this.loading.encryption]);
 	}
 
 	/**
@@ -475,7 +493,9 @@ class Book {
 			archive: this.archive,
 			resolver: this.resolve.bind(this),
 			request: this.request.bind(this),
-			replacements: this.settings.replacements || (this.archived ? "blobUrl" : "base64")
+			replacements: this.settings.replacements || (this.archived ? "blobUrl" : "base64"),
+			encryption: this.encryption,
+			metadata: this.packaging.metadata
 		});
 
 		this.loadNavigation(this.packaging).then(() => {

@@ -1,9 +1,11 @@
-import {substitute} from "./utils/replacements";
+import {substitute, substituteCss} from "./utils/replacements";
 import {createBase64Url, createBlobUrl, blob2base64} from "./utils/core";
 import Url from "./utils/url";
 import mime from "../libs/mime/mime";
 import Path from "./utils/path";
 import path from "path-webpack";
+import Encryption from "./encryption";
+import { deobfuscateIdpfFont } from "./utils/decrypt";
 
 /**
  * Handle Package Resources
@@ -13,6 +15,8 @@ import path from "path-webpack";
  * @param {string} [options.replacements="base64"]
  * @param {Archive} [options.archive]
  * @param {method} [options.resolver]
+ * @param {Encryption} [options.encryption]
+ * @param {metadata} [options.metadata]
  */
 class Resources {
 	constructor(manifest, options) {
@@ -20,7 +24,9 @@ class Resources {
 			replacements: (options && options.replacements) || "base64",
 			archive: (options && options.archive),
 			resolver: (options && options.resolver),
-			request: (options && options.request)
+			request: (options && options.request),
+			encryption: (options && options.encryption),
+			metadata: (options && options.metadata)
 		};
 
 		this.process(manifest);
@@ -135,6 +141,13 @@ class Resources {
 	 * @return {Promise}         returns replacement urls
 	 */
 	replacements(){
+		const encryptedUrls = this.settings.encryption.items.map(item => {
+			return item.uris.map(uri => {
+				const encryptedAsset = this.urls.find(url => uri.includes(url));
+				return encryptedAsset;
+			});
+		}).flat();
+
 		if (this.settings.replacements === "none") {
 			return new Promise(function(resolve) {
 				resolve(this.urls);
@@ -143,6 +156,44 @@ class Resources {
 
 		var replacements = this.urls.map( (url) => {
 				var absolute = this.settings.resolver(url);
+
+				if (encryptedUrls.includes(url)) {
+					const encryptionItem = this.settings.encryption.items.find(item => {
+						const res = item.uris.map(uri => uri.includes(url));
+						return res.indexOf(true) !== -1;
+					});
+
+					if (encryptionItem) {
+						const parsedUrl = new Url(absolute);
+						const mimeType = mime.lookup(parsedUrl.filename);
+
+						switch (encryptionItem.method) {
+							case 'http://www.idpf.org/2008/embedding':
+								if (this.settings.archive) {	
+									const resolved = this.settings.resolver(url);
+									console.log({resolved})
+									return this.settings.archive.getBlob(resolved, mimeType).then(blob => {
+										return blob.arrayBuffer().then(buffer => {
+											const decrypted = deobfuscateIdpfFont(this.settings.metadata.identifier, buffer)
+			
+											return createBlobUrl(decrypted, mimeType);
+										});
+									}).catch(err => {
+										console.log(err);
+										return null;
+									});
+								}
+								return this.settings.request(absolute, 'binary').then(buffer => {
+									const decrypted = deobfuscateIdpfFont(this.settings.metadata.identifier, buffer)
+			
+									return createBlobUrl(decrypted, mimeType);
+								})
+							default:
+								console.warn(`encryption method not supported ${encryptionItem.method}`);
+								break;
+						}
+					}
+				}
 
 				return this.createUrl(absolute).
 					catch((err) => {
@@ -172,7 +223,7 @@ class Resources {
 		archive = archive || this.settings.archive;
 		resolver = resolver || this.settings.resolver;
 		this.cssUrls.forEach(function(href) {
-			var replacement = this.createCssFile(href, archive, resolver)
+			var replacement = this.createCssFile(href)
 				.then(function (replacementUrl) {
 					// switch the url in the replacementUrls
 					var indexInUrls = this.urls.indexOf(href);
@@ -230,7 +281,7 @@ class Resources {
 
 		return textResponse.then( (text) => {
 			// Replacements in the css text
-			text = substitute(text, relUrls, this.replacementUrls);
+			text = substituteCss(text, relUrls, this.replacementUrls);
 
 			// Get the new url
 			if (this.settings.replacements === "base64") {
@@ -295,7 +346,7 @@ class Resources {
 	 */
 	substitute(content, url) {
 		var relUrls;
-		if (url) {
+		if (this.settings.archive) {
 			relUrls = this.relativeTo(url);
 		} else {
 			relUrls = this.urls;
