@@ -128,10 +128,21 @@ export function replaceLinks(contents, fn) {
 export function substitute(content, urls, replacements) {
 	urls.forEach(function(url, i){
 		if (url && replacements[i]) {
+			if (url.indexOf('%') !== -1) {
+				url = decodeURIComponent(url);
+			}
+			let _url = url;
 			// Account for special characters in the file name.
 			// See https://stackoverflow.com/a/6318729.
-			url = url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			content = content.replace(new RegExp(url, "g"), replacements[i]);
+			_url = _url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+			let regex = new RegExp(_url, "g");
+
+			if (url.indexOf('&amp;') === -1 && !regex.test(content)) {
+				_url = url.replace(/&/g, '&amp;');
+				_url = _url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				regex = new RegExp(_url, "g");
+			}
+			content = content.replace(regex, replacements[i]);
 		}
 	});
 	return content;
@@ -144,7 +155,7 @@ export function substituteCss(content, urls, replacements) {
 			// Account for special characters in the file name.
 			// See https://stackoverflow.com/a/6318729.
 			const fileName = urlSegments[urlSegments.length - 1].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			const regex = new RegExp(`url\\(.*?${fileName}.\\)`, 'ig');
+			const regex = new RegExp(`url\\(.*?${fileName}\\)`, 'ig');
 
 			content = content.replace(regex, `url(${replacements[i]})`);
 		}

@@ -171,7 +171,7 @@ class Resources {
 							case 'http://www.idpf.org/2008/embedding':
 								if (this.settings.archive) {	
 									const resolved = this.settings.resolver(url);
-									console.log({resolved})
+
 									return this.settings.archive.getBlob(resolved, mimeType).then(blob => {
 										return blob.arrayBuffer().then(buffer => {
 											const decrypted = deobfuscateIdpfFont(this.settings.metadata.identifier, buffer)
