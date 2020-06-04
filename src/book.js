@@ -331,13 +331,13 @@ class Book {
 			this.loading.encryption.resolve(this.encryption);
 		});
 
-		const packagingPromise = this.load(url)
-			.then((xml) => {
+		const packagingPromise = Promise.all([this.load(url), this.loading.encryption])
+			.then(([xml]) => {
 				this.packaging = new Packaging(xml);
 				return this.unpack(this.packaging);
 			});
 
-		return Promise.all([packagingPromise, this.loading.encryption]);
+		return packagingPromise;
 	}
 
 	/**
