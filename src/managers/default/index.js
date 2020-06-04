@@ -42,6 +42,7 @@ class DefaultViewManager {
 		};
 
 		this.rendered = false;
+		this.scrollToEnd = false;
 
 	}
 
@@ -328,6 +329,12 @@ class DefaultViewManager {
 
 	afterResized(view){
 		this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+
+		if (this.scrollToEnd) {
+			requestAnimationFrame(() => {
+				this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
+			});
+		}
 	}
 
 	moveTo(offset){
@@ -419,6 +426,7 @@ class DefaultViewManager {
 		var left;
 
 		let dir = this.settings.direction;
+		this.scrollToEnd = false;
 
 		if(!this.views.length) return;
 
@@ -497,6 +505,7 @@ class DefaultViewManager {
 		var prev;
 		var left;
 		let dir = this.settings.direction;
+		this.scrollToEnd = false;
 
 		if(!this.views.length) return;
 
@@ -584,6 +593,7 @@ class DefaultViewManager {
 							}
 						} else {
 							this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
+							this.scrollToEnd = true;
 						}
 					}
 					this.views.show();

@@ -163,13 +163,15 @@ class IframeView {
 				this.addListeners();
 
 				return new Promise((resolve, reject) => {
-					// Expand the iframe to the full size of the content
-					this.expand();
-					//
-					if (this.settings.forceRight) {
-						this.element.style.marginLeft = this.width() + "px";
-					}
-					resolve();
+					setTimeout(() => {
+						// Expand the iframe to the full size of the content
+						this.expand();
+						//
+						if (this.settings.forceRight) {
+							this.element.style.marginLeft = this.width() + "px";
+						}
+						resolve();
+					}, 50);
 				});
 
 			}.bind(this), function(e){
