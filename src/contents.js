@@ -380,6 +380,7 @@ class Contents {
 	 * @private
 	 */
 	listeners() {
+
 		this.imageLoadListeners();
 
 		this.mediaQueryListeners();
@@ -450,6 +451,7 @@ class Contents {
 		var width, height;
 		// Test size again
 		clearTimeout(this.expanding);
+
 		requestAnimationFrame(this.resizeCheck.bind(this));
 		this.expanding = setTimeout(this.resizeListeners.bind(this), 350);
 	}
