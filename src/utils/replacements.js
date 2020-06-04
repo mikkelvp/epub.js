@@ -155,7 +155,7 @@ export function substituteCss(content, urls, replacements) {
 			// Account for special characters in the file name.
 			// See https://stackoverflow.com/a/6318729.
 			const fileName = urlSegments[urlSegments.length - 1].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			const regex = new RegExp(`url\\(.*?${fileName}\\)`, 'ig');
+			const regex = new RegExp(`url\\(.*?${fileName}*.\\)`, 'ig');
 
 			content = content.replace(regex, `url(${replacements[i]})`);
 		}
