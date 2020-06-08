@@ -103,7 +103,8 @@ class Book {
 			navigation: this.loading.navigation.promise,
 			pageList: this.loading.pageList.promise,
 			resources: this.loading.resources.promise,
-			displayOptions: this.loading.displayOptions.promise
+			displayOptions: this.loading.displayOptions.promise,
+			encryption: this.loading.encryption.promise
 		};
 
 		/**
@@ -118,7 +119,8 @@ class Book {
 			this.loaded.cover,
 			this.loaded.navigation,
 			this.loaded.resources,
-			this.loaded.displayOptions
+			this.loaded.displayOptions,
+			this.loaded.encryption
 		]);
 
 
@@ -331,8 +333,8 @@ class Book {
 			this.loading.encryption.resolve(this.encryption);
 		});
 
-		const packagingPromise = Promise.all([this.load(url), this.loading.encryption])
-			.then(([xml]) => {
+		const packagingPromise = Promise.all([this.load(url), this.loaded.encryption])
+			.then(([xml, encryption]) => {
 				this.packaging = new Packaging(xml);
 				return this.unpack(this.packaging);
 			});
