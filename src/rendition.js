@@ -779,6 +779,7 @@ class Rendition {
 				index: start.index,
 				href: start.href,
 				cfi: start.mapping.start,
+				endCfi: start.mapping.end,
 				displayed: {
 					page: start.pages[0] || 1,
 					total: start.totalPages
@@ -788,6 +789,7 @@ class Rendition {
 				index: end.index,
 				href: end.href,
 				cfi: end.mapping.end,
+				startCfi: end.mapping.start,
 				displayed: {
 					page: end.pages[end.pages.length-1] || 1,
 					total: end.totalPages
