@@ -43,6 +43,7 @@ class Contents {
 		this.called = 0;
 		this.active = true;
 		this.listeners();
+		this.scale = 1;
 	}
 
 	/**
@@ -1120,6 +1121,7 @@ class Contents {
 			translateStr = " translate(" + (offsetX || 0 )+ "px, " + (offsetY || 0 )+ "px )";
 		}
 
+		this.scale = scale;
 		this.css("transform", scaleStr + translateStr);
 	}
 
