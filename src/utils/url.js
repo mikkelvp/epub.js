@@ -85,6 +85,10 @@ class Url {
 		}
 
 		fullpath = path.resolve(this.directory, what);
+		
+		if (!this.origin || this.origin === 'null') {
+			return fullpath;
+		}
 		return this.origin + fullpath;
 	}
 
