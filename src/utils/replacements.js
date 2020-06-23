@@ -160,5 +160,26 @@ export function substituteCss(content, urls, replacements) {
 			content = content.replace(regex, `url(${replacements[i]})`);
 		}
 	});
+
+	// replace css imports - does not support identical filenames in different folders
+	const importRegex = /@import\s*"(.*?)"/gm;
+	const imports = [];
+	let res;
+	while ((res = importRegex.exec(content)) !== null) {
+		imports.push(res[1])
+	}
+
+	imports.forEach(path => {
+		const segments = path.split('/');
+		const filename = segments[segments.length - 1];
+		const index = urls.findIndex(url => url.includes(filename));
+		const regex = new RegExp(path);
+		content = content.replace(regex, replacements[index]);
+	})
+
+	// remove invalid selectors (uppercased DOM elements)
+	const regex = /^[^.][A-Z]+\s*[{].*?[}]/gsm;
+	content = content.replace(regex, '');
+
 	return content;
 }

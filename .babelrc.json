@@ -5,7 +5,8 @@
 			"corejs": 3,
 			"useBuiltIns": "usage",
 			"bugfixes": true,
-			"modules": "auto"
+			"modules": "auto",
+			"exclude": ["@babel/plugin-proposal-unicode-property-regex", "@babel/plugin-transform-unicode-regex"]
 		}]
-	],
+	]
 }

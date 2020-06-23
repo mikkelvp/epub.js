@@ -55,6 +55,9 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@babel/plugin-proposal-unicode-property-regex": "^7.10.1",
+    "@babel/plugin-transform-unicode-regex": "^7.10.1",
+    "@types/jszip": "^3.4.1",
     "@types/localforage": "0.0.34",
     "core-js": "^3.6.5",
     "event-emitter": "^0.3.5",
