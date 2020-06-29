@@ -134,15 +134,15 @@ export function substitute(content, urls, replacements) {
 			let _url = url;
 			// Account for special characters in the file name.
 			// See https://stackoverflow.com/a/6318729.
-			_url = _url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			let regex = new RegExp(_url, "g");
+			_url = _url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			let regex = new RegExp(`".[^"]+?(${_url}")`, "g");
 
 			if (url.indexOf('&amp;') === -1 && !regex.test(content)) {
 				_url = url.replace(/&/g, '&amp;');
-				_url = _url.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				regex = new RegExp(_url, "g");
+				_url = _url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+				regex = new RegExp(`".[^"]+?(${_url}")`, "g");
 			}
-			content = content.replace(regex, replacements[i]);
+			content = content.replace(regex, `"${replacements[i]}"`);
 		}
 	});
 	return content;
