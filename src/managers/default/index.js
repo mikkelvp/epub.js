@@ -232,8 +232,8 @@ class DefaultViewManager {
 		}, epubcfi);
 	}
 
-	createView(section, forceRight) {
-		return new this.View(section, extend(this.viewSettings, { forceRight }) );
+	createView(section, forceRight, isFirstView) {
+		return new this.View(section, extend(this.viewSettings, { forceRight, isFirstView }) );
 	}
 
 	handleNextPrePaginated(forceRight, section, action) {
@@ -292,7 +292,7 @@ class DefaultViewManager {
 			forceRight = true;
 		}
 
-		this.add(section, forceRight)
+		this.add(section, forceRight, true)
 			.then(function(view){
 
 				// Move to correct place within the section, if needed
@@ -353,8 +353,8 @@ class DefaultViewManager {
 		this.scrollTo(distX, distY, true);
 	}
 
-	add(section, forceRight){
-		var view = this.createView(section, forceRight);
+	add(section, forceRight, isFirstView){
+		var view = this.createView(section, forceRight, isFirstView);
 
 		this.views.append(view);
 
@@ -369,8 +369,8 @@ class DefaultViewManager {
 		return view.display(this.request);
 	}
 
-	append(section, forceRight){
-		var view = this.createView(section, forceRight);
+	append(section, forceRight, isFirstView){
+		var view = this.createView(section, forceRight, isFirstView);
 		this.views.append(view);
 
 		view.onDisplayed = this.afterDisplayed.bind(this);
@@ -383,8 +383,8 @@ class DefaultViewManager {
 		return view.display(this.request);
 	}
 
-	prepend(section, forceRight){
-		var view = this.createView(section, forceRight);
+	prepend(section, forceRight, isFirstView){
+		var view = this.createView(section, forceRight, isFirstView);
 
 		view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
 			this.counter(bounds);
@@ -487,7 +487,7 @@ class DefaultViewManager {
 				forceRight = true;
 			}
 
-			return this.append(next, forceRight)
+			return this.append(next, forceRight, true)
 				.then(function(){
 					return this.handleNextPrePaginated(forceRight, next, this.append);
 				}.bind(this), (err) => {
@@ -576,7 +576,7 @@ class DefaultViewManager {
 					if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
 						left = prev.prev();
 						if (left) {
-							return this.prepend(left);
+							return this.prepend(left, false, true);
 						}
 					}
 				}.bind(this), (err) => {

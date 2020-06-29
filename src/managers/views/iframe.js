@@ -16,7 +16,8 @@ class IframeView {
 			layout: undefined,
 			globalLayoutProperties: {},
 			method: undefined,
-			forceRight: false
+			forceRight: false,
+			isFirstView: false, // left hand view when multiple views visible
 		}, options || {});
 
 		this.id = "epubjs-view-" + uuid();
@@ -149,7 +150,7 @@ class IframeView {
 			.then(function(){
 
 				// apply the layout function to the contents
-				this.layout.format(this.contents, this.section);
+				this.layout.format(this.contents, this.section, this.settings.isFirstView);
 
 				// find and report the writingMode axis
 				let writingMode = this.contents.writingMode();
@@ -427,7 +428,7 @@ class IframeView {
 			if(this.displayed && this.iframe) {
 				this.expand();
 				if (this.contents) {
-					this.layout.format(this.contents);
+					this.layout.format(this.contents, undefined, this.settings.isFirstView);
 				}
 			}
 		});
@@ -436,7 +437,7 @@ class IframeView {
 			if(this.displayed && this.iframe) {
 				this.expand();
 				if (this.contents) {
-					this.layout.format(this.contents);
+					this.layout.format(this.contents, undefined, this.settings.isFirstView);
 				}
 			}
 		});
