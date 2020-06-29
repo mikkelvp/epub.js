@@ -497,7 +497,8 @@ class Book {
 			request: this.request.bind(this),
 			replacements: this.settings.replacements || (this.archived ? "blobUrl" : "base64"),
 			encryption: this.encryption,
-			metadata: this.packaging.metadata
+			metadata: this.packaging.metadata,
+			uniqueIdentifier: this.packaging.uniqueIdentifier
 		});
 
 		this.loadNavigation(this.packaging).then(() => {

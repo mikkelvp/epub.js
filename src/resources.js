@@ -17,6 +17,7 @@ import { deobfuscateIdpfFont } from "./utils/decrypt";
  * @param {method} [options.resolver]
  * @param {Encryption} [options.encryption]
  * @param {metadata} [options.metadata]
+ * @param {uniqueIdentifier} [options.uniqueIdentifier]
  */
 class Resources {
 	constructor(manifest, options) {
@@ -26,7 +27,8 @@ class Resources {
 			resolver: (options && options.resolver),
 			request: (options && options.request),
 			encryption: (options && options.encryption),
-			metadata: (options && options.metadata)
+			metadata: (options && options.metadata),
+			uniqueIdentifier: (options && options.uniqueIdentifier),
 		};
 
 		this.process(manifest);
@@ -174,7 +176,7 @@ class Resources {
 
 									return this.settings.archive.getBlob(resolved, mimeType).then(blob => {
 										return blob.arrayBuffer().then(buffer => {
-											const decrypted = deobfuscateIdpfFont(this.settings.metadata.identifier, buffer)
+											const decrypted = deobfuscateIdpfFont(this.settings.uniqueIdentifier, buffer)
 			
 											return createBlobUrl(decrypted, mimeType);
 										});
@@ -184,7 +186,7 @@ class Resources {
 									});
 								}
 								return this.settings.request(absolute, 'binary').then(buffer => {
-									const decrypted = deobfuscateIdpfFont(this.settings.metadata.identifier, buffer)
+									const decrypted = deobfuscateIdpfFont(this.settings.uniqueIdentifier, buffer)
 			
 									return createBlobUrl(decrypted, mimeType);
 								})
@@ -197,16 +199,18 @@ class Resources {
 
 				return this.createUrl(absolute).
 					catch((err) => {
-						console.error(err);
-						return null;
+						console.error('error fetching asset', absolute);
+						return absolute;
 					});
 			});
 
 		return Promise.all(replacements)
 			.then( (replacementUrls) => {
-				this.replacementUrls = replacementUrls.filter((url) => {
-					return (typeof(url) === "string");
-				});
+				// this.replacementUrls = replacementUrls.filter((url) => {
+				// 	return (typeof(url) === "string");
+				// });
+				this.replacementUrls = replacementUrls;
+
 				return replacementUrls;
 			});
 	}
