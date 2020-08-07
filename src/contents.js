@@ -1164,6 +1164,12 @@ class Contents {
 			// set margin since scale is weird
 			var marginLeft = width - (viewportWidth * scale);
 			this.css("margin-left", marginLeft + "px");
+			this.css("background-position", "100% 0%");
+		} else if (scale) {
+			// center
+			var marginLeft = (width - (viewportWidth * scale)) / 2;
+			this.css("margin-left", marginLeft + "px");
+			this.css("background-position", "50% 0%");
 		}
 	}
 

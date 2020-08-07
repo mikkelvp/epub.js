@@ -487,7 +487,9 @@ class DefaultViewManager {
 				forceRight = true;
 			}
 
-			return this.append(next, forceRight, true)
+			var isFirstView = this.mapping.layout.divisor > 1;
+
+			return this.append(next, forceRight, isFirstView)
 				.then(function(){
 					return this.handleNextPrePaginated(forceRight, next, this.append);
 				}.bind(this), (err) => {
