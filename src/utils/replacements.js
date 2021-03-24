@@ -146,7 +146,7 @@ export function substitute(content, urls, replacements) {
 			// replace relative urls like `../path.jpg`
 			content = content.replace(regex, `"${replacements[i]}"`);
 			// replace remaining
-			content = content.replace(new RegExp(url, "g"), replacements[i]);
+			content = content.replace(new RegExp(_url, "g"), replacements[i]);
 		}
 	});
 	return content;

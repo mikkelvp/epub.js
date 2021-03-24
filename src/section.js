@@ -67,6 +67,7 @@ class Section {
 				}.bind(this))
 				.catch(function(error){
 					loading.reject(error);
+					console.log(error);
 				});
 		}
 
